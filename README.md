@@ -63,6 +63,11 @@ final class ServerTest {
 Field values are available in `@BeforeEach`; reservations are released after
 each test invocation.
 
+ephpo supports JUnit parallel execution for parameter injection and
+`PER_METHOD` field injection. Concurrent `PER_CLASS` tests cannot use
+`@Ephemeral` fields; use parameter injection or `@Execution(SAME_THREAD)`
+instead.
+
 To register the extension automatically, add
 `src/test/resources/junit-platform.properties`:
 
@@ -83,7 +88,9 @@ try (Reservation reservation = Pool.SINGLETON.acquire()) {
 
 The default range is `20000-29999` and the default acquisition timeout is
 `4000` milliseconds. Override them with `-Dephpo.range=MIN-MAX` and
-`-Dephpo.timeout=MILLISECONDS`.
+`-Dephpo.timeout=MILLISECONDS`. The range must cover the peak number of ports
+reserved concurrently. The default provides 10,000 ports; expand the range if
+it is exhausted.
 
 ephpo prevents cooperating JVMs from receiving the same port and skips ports
 already in use. It cannot prevent an unrelated process from deliberately

@@ -6,11 +6,15 @@ package codes.ivanov.ephpo;
 
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolver;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.junit.platform.launcher.Launcher;
 import org.junit.platform.launcher.LauncherDiscoveryRequest;
@@ -52,6 +56,24 @@ final class ResolverFailureTest {
     }
 
     @Test
+    void rejectsConcurrentPerClassFields() {
+        ResolverFailureTest.assertFailure(
+            ConcurrentPerClassField.class,
+            "cannot be injected into a concurrent PER_CLASS test instance"
+        );
+    }
+
+    @Test
+    void supportsConcurrentPerClassParameters() {
+        ResolverFailureTest.assertSuccess(ConcurrentPerClassParameter.class, 8L);
+    }
+
+    @Test
+    void supportsConcurrentPerMethodFields() {
+        ResolverFailureTest.assertSuccess(ConcurrentPerMethodField.class, 8L);
+    }
+
+    @Test
     void serviceLoaderEnablesBareAnnotation() {
         final TestExecutionSummary summary = ResolverFailureTest.execute(
             BareAnnotation.class, true
@@ -76,6 +98,19 @@ final class ResolverFailureTest {
     }
 
     /**
+     * Assert all launched tests succeed.
+     * @param type Test class
+     * @param total Expected successful tests
+     */
+    private static void assertSuccess(final Class<?> type, final long total) {
+        final TestExecutionSummary summary = ResolverFailureTest.execute(
+            type, false
+        );
+        Assertions.assertEquals(0L, summary.getTestsFailedCount());
+        Assertions.assertEquals(total, summary.getTestsSucceededCount());
+    }
+
+    /**
      * Launch one nested test class.
      * @param type Test class
      * @param autodetect Whether extension auto-detection is enabled
@@ -91,6 +126,8 @@ final class ResolverFailureTest {
         ).configurationParameter(
             "junit.jupiter.extensions.autodetection.enabled",
             Boolean.toString(autodetect)
+        ).configurationParameter(
+            "junit.jupiter.execution.parallel.enabled", "true"
         ).build();
         final SummaryGeneratingListener listener =
             new SummaryGeneratingListener();
@@ -146,6 +183,49 @@ final class ResolverFailureTest {
         @Test
         void valid(@Ephemeral final int port) {
             Assertions.assertTrue(port > 0);
+        }
+    }
+
+    /** Concurrent shared-instance field case. */
+    @ExtendWith(EphemeralResolver.class)
+    @Execution(ExecutionMode.CONCURRENT)
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    static final class ConcurrentPerClassField {
+
+        /** Unsafe shared target. */
+        @Ephemeral
+        private int port;
+
+        @Test
+        void invalid() {
+            Assertions.assertTrue(this.port > 0);
+        }
+    }
+
+    /** Concurrent shared-instance parameter case. */
+    @ExtendWith(EphemeralResolver.class)
+    @Execution(ExecutionMode.CONCURRENT)
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    static final class ConcurrentPerClassParameter {
+
+        @RepeatedTest(8)
+        void valid(@Ephemeral final int port) {
+            Assertions.assertTrue(port > 0);
+        }
+    }
+
+    /** Concurrent per-invocation field case. */
+    @ExtendWith(EphemeralResolver.class)
+    @Execution(ExecutionMode.CONCURRENT)
+    static final class ConcurrentPerMethodField {
+
+        /** Safe per-invocation target. */
+        @Ephemeral
+        private int port;
+
+        @RepeatedTest(8)
+        void valid() {
+            Assertions.assertTrue(this.port > 0);
         }
     }
 
