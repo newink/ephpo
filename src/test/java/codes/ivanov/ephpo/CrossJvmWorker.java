@@ -7,6 +7,7 @@ package codes.ivanov.ephpo;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.ServerSocket;
+import java.net.SocketException;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -134,7 +135,7 @@ public final class CrossJvmWorker {
             Thread.sleep(hold);
             try (ServerSocket rebound = new ServerSocket(port)) {
                 rebound.getLocalPort();
-            } catch (final BindException stolen) {
+            } catch (final SocketException stolen) {
                 lost += 1;
             }
         }
@@ -162,9 +163,9 @@ public final class CrossJvmWorker {
             throw new IllegalStateException(
                 String.format("Naive port %d was not stolen", socket.getLocalPort())
             );
-        } catch (final BindException expected) {
+        } catch (final SocketException expected) {
             CrossJvmWorker.publish(
-                output, expected.getClass().getSimpleName()
+                output, "occupied"
             );
         }
     }
@@ -201,7 +202,7 @@ public final class CrossJvmWorker {
         while (socket == null && System.currentTimeMillis() < deadline) {
             try {
                 socket = new ServerSocket(port);
-            } catch (final BindException occupied) {
+            } catch (final SocketException occupied) {
                 Thread.sleep(10L);
             }
         }
