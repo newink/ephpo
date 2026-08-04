@@ -1,0 +1,36 @@
+name: Feature request
+description: Suggest a change to what ephpo does
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: >
+        ephpo keeps a deliberately small API. A proposal that fits as a
+        decorator over the existing objects has a much better chance than one
+        that adds options to an existing class.
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: >
+        What are you unable to do today? Describe the test you are trying to
+        write, not the API you have in mind.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: How would it look from a test author's point of view?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you considered
+      description: >
+        Including binding to port `0` — if the server under test can report
+        the port it bound, that is simpler than any reservation.
+    validations:
+      required: false

@@ -146,4 +146,15 @@ ephpo prevents cooperating JVMs from receiving the same port and skips ports
 already in use. It cannot prevent an unrelated process from deliberately
 binding a reserved port.
 
+## Contribute
+
+Bug reports and pull requests are welcome. Read
+[CONTRIBUTING.md](CONTRIBUTING.md) first: the build is gated on Qulice, which
+is stricter than most Java projects, and it is cheaper to know that before you
+write code than after. Released changes are listed in
+[CHANGELOG.md](CHANGELOG.md).
+
+Participation is governed by the [Code of Conduct](CODE_OF_CONDUCT.md).
+Vulnerabilities go to [SECURITY.md](SECURITY.md), never to a public issue.
+
 Licensed under the [MIT License](LICENSE.txt).

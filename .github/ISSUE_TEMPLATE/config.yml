@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://github.com/newink/ephpo#readme
+    about: Installing, configuring, and running ephpo in parallel builds.
+  - name: Security vulnerability
+    url: https://github.com/newink/ephpo/security/advisories/new
+    about: Report privately. Never in a public issue.

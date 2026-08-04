@@ -1,0 +1,61 @@
+name: Bug report
+description: A reservation collided, leaked, or failed when it should not have
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: >
+        Please do not report security problems here — see
+        [SECURITY.md](https://github.com/newink/ephpo/blob/master/SECURITY.md).
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: >
+        What did ephpo do, and what did you expect instead? Paste the full
+        stack trace or failure message if there is one.
+    validations:
+      required: true
+  - type: textarea
+    id: reproducer
+    attributes:
+      label: Reproducer
+      description: >
+        The smallest test class that shows the problem, and the command you
+        run it with.
+      render: java
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: ephpo version
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: java
+    attributes:
+      label: JDK
+      description: Output of `java -version`, one line is enough.
+      placeholder: temurin 21.0.5
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: Ubuntu 24.04 / macOS 15 / Windows 11
+    validations:
+      required: true
+  - type: textarea
+    id: setup
+    attributes:
+      label: Test setup
+      description: >
+        Anything that affects how ports are reserved: `ephpo.range` and
+        `ephpo.timeout`, parallel execution settings, the number of forks,
+        containers, CI runner, a non-default `java.io.tmpdir`.
+    validations:
+      required: false
