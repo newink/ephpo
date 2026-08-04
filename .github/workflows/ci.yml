@@ -7,6 +7,9 @@ on:
       - master
   merge_group:
   workflow_call:
+    secrets:
+      CODECOV_TOKEN:
+        required: true
 
 permissions:
   contents: read
@@ -39,9 +42,6 @@ jobs:
 
   coverage:
     name: Test coverage
-    permissions:
-      contents: read
-      id-token: write
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -60,14 +60,14 @@ jobs:
         run: >-
           ./mvnw --batch-mode --no-transfer-progress
           -DfailIfNoTests=true -Pcoverage clean verify
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v7
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
         with:
           disable_search: true
           fail_ci_if_error: true
           files: target/site/jacoco/jacoco.xml
           flags: unittests
-          use_oidc: true
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   e2e:
     name: E2E / ${{ matrix.name }}

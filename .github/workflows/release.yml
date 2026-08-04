@@ -49,9 +49,7 @@ jobs:
   quality:
     name: Release quality gate
     needs: preflight
-    permissions:
-      contents: read
-      id-token: write
+    secrets: inherit
     uses: ./.github/workflows/ci.yml
 
   publish:
