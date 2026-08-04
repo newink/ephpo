@@ -21,7 +21,11 @@ public interface Pool {
 
     /**
      * The recommended shared pool.
+     * @deprecated A pool holds no state worth sharing; construct
+     *  {@link Ports} where you need it. Scheduled for removal in 0.2.0.
      */
+    @Deprecated
+    @API(status = API.Status.DEPRECATED, since = "0.1.1")
     Pool SINGLETON = new Ports();
 
     /**

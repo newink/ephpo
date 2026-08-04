@@ -42,7 +42,8 @@ final class EphemeralResolverTest {
     void injectsDistinctParameters(@Ephemeral final int first,
         @Ephemeral final Integer second) {
         Assertions.assertNotEquals(first, second.intValue());
-        Assertions.assertEquals(3, Ports.heldCount());
+        Assertions.assertNotEquals(this.field, first);
+        Assertions.assertNotEquals(this.field, second.intValue());
     }
 
     @Test

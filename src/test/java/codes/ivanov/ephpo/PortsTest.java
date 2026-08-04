@@ -6,8 +6,11 @@ package codes.ivanov.ephpo;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -15,8 +18,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.api.parallel.Resources;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -53,13 +61,65 @@ final class PortsTest {
     }
 
     @Test
+    @ResourceLock(Resources.SYSTEM_PROPERTIES)
+    @SuppressWarnings("PMD.UnnecessaryLocalRule")
+    void storesEveryPortLockInOneRegistry(@TempDir final Path temporary)
+        throws IOException {
+        final String property = "java.io.tmpdir";
+        final String previous = System.setProperty(
+            property, temporary.toString()
+        );
+        try (
+            Reservation first = new Ports().acquire();
+            Reservation second = new Ports().acquire()
+        ) {
+            Assertions.assertNotEquals(first.port(), second.port());
+            try (
+                Stream<Path> entries = Files.list(temporary.resolve("ephpo"))
+            ) {
+                Assertions.assertEquals(
+                    Set.of("registry.lock"),
+                    entries.map(file -> file.getFileName().toString()).collect(
+                        Collectors.toSet()
+                    )
+                );
+            }
+            Assertions.assertEquals(
+                0L, Files.size(temporary.resolve("ephpo/registry.lock"))
+            );
+        } finally {
+            System.setProperty(property, previous);
+        }
+    }
+
+    @Test
     void givesReservationBackOnClose() {
         final Reservation reservation = new Ports().acquire();
-        Assertions.assertEquals(1, Ports.heldCount());
+        final int port = reservation.port();
         reservation.close();
-        Assertions.assertEquals(0, Ports.heldCount());
         reservation.close();
-        Assertions.assertEquals(0, Ports.heldCount());
+        try (
+            Reservation again = new Ports(
+                String.format("%d-%d", port, port), 500L
+            ).acquire()
+        ) {
+            Assertions.assertEquals(port, again.port());
+        }
+    }
+
+    @Test
+    void survivesRepeatedCyclesOverNarrowRange() {
+        final Reservation probe = new Ports().acquire();
+        final int port = probe.port();
+        probe.close();
+        final Pool pool = new Ports(
+            String.format("%d-%d", port, port), 500L
+        );
+        for (int cycle = 0; cycle < 200; ++cycle) {
+            try (Reservation reservation = pool.acquire()) {
+                Assertions.assertEquals(port, reservation.port());
+            }
+        }
     }
 
     @ParameterizedTest
