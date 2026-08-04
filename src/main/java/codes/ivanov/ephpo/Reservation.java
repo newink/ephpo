@@ -4,6 +4,8 @@
  */
 package codes.ivanov.ephpo;
 
+import org.apiguardian.api.API;
+
 /**
  * A port held until this reservation is closed.
  *
@@ -11,6 +13,7 @@ package codes.ivanov.ephpo;
  *
  * @since 0.1.0
  */
+@API(status = API.Status.STABLE, since = "0.1.0")
 public interface Reservation extends AutoCloseable {
 
     /**
