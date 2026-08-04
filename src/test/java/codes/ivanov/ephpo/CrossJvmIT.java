@@ -144,7 +144,7 @@ final class CrossJvmIT {
                 )
             );
             CrossJvmIT.success(owner, result);
-            Assertions.assertEquals("BindException", Files.readString(result));
+            Assertions.assertEquals("occupied", Files.readString(result));
         } finally {
             CrossJvmIT.stop(processes);
         }
