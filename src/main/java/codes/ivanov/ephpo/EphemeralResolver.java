@@ -9,10 +9,13 @@ import java.lang.invoke.VarHandle;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.concurrent.atomic.AtomicLong;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionConfigurationException;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolver;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 /**
  * Injects {@link Ephemeral} parameters and fields for one test invocation.
@@ -108,6 +111,22 @@ public final class EphemeralResolver implements ParameterResolver,
      */
     private void inject(final Object test, final Field field,
         final ExtensionContext extension) {
+        if (extension.getExecutionMode().equals(ExecutionMode.CONCURRENT)
+            && extension.getTestInstanceLifecycle().orElse(
+                TestInstance.Lifecycle.PER_METHOD
+            ).equals(TestInstance.Lifecycle.PER_CLASS)) {
+            throw new ExtensionConfigurationException(
+                String.format(
+                    String.join(
+                        "", "@Ephemeral field \"%s\" cannot be injected ",
+                        "into a concurrent PER_CLASS test instance; use ",
+                        "parameter injection, PER_METHOD, or ",
+                        "@Execution(SAME_THREAD)"
+                    ),
+                    field.getName()
+                )
+            );
+        }
         if (Modifier.isStatic(field.getModifiers())) {
             throw new IllegalArgumentException(
                 String.format(
