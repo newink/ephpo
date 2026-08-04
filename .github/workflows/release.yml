@@ -49,6 +49,7 @@ jobs:
   quality:
     name: Release quality gate
     needs: preflight
+    secrets: inherit
     uses: ./.github/workflows/ci.yml
 
   publish:
