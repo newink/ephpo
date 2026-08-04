@@ -63,10 +63,13 @@ final class ServerTest {
 Field values are available in `@BeforeEach`; reservations are released after
 each test invocation.
 
-ephpo supports JUnit parallel execution for parameter injection and
-`PER_METHOD` field injection. Concurrent `PER_CLASS` tests cannot use
-`@Ephemeral` fields; use parameter injection or `@Execution(SAME_THREAD)`
-instead.
+Parallel execution is a first-class use case. With
+`junit.jupiter.execution.parallel.enabled=true`, ephpo coordinates port
+reservations across JUnit worker threads and across multiple Maven or Gradle
+test JVMs running simultaneously on the same host, so cooperating forks never
+receive the same port. Parameter injection and `PER_METHOD` field injection
+support this mode. Concurrent `PER_CLASS` tests cannot use `@Ephemeral` fields;
+use parameter injection or `@Execution(SAME_THREAD)` instead.
 
 To register the extension automatically, add
 `src/test/resources/junit-platform.properties`:
@@ -80,17 +83,64 @@ Then `@ExtendWith(EphemeralResolver.class)` is not needed.
 The reservation API can also be used directly:
 
 ```java
-try (Reservation reservation = Pool.SINGLETON.acquire()) {
+try (Reservation reservation = new Ports().acquire()) {
     int port = reservation.port();
     // Start the server or child process while the reservation is open.
 }
 ```
 
+A pool holds no state worth sharing, so construct `Ports` wherever you need
+it. `Pool.SINGLETON` still works but is deprecated and will be removed in
+0.2.0.
+
+## Configure
+
 The default range is `20000-29999` and the default acquisition timeout is
-`4000` milliseconds. Override them with `-Dephpo.range=MIN-MAX` and
-`-Dephpo.timeout=MILLISECONDS`. The range must cover the peak number of ports
-reserved concurrently. The default provides 10,000 ports; expand the range if
-it is exhausted.
+`4000` milliseconds. Set `ephpo.range` and `ephpo.timeout` on the **test JVM**
+before ephpo is initialized. For a Maven command, Surefire forwards user
+properties to its test JVM by default:
+
+```shell
+./mvnw -Dephpo.range=30000-30999 -Dephpo.timeout=8000 test
+```
+
+For persistent Maven configuration, use Surefire's system properties:
+
+```xml
+<plugin>
+  <groupId>org.apache.maven.plugins</groupId>
+  <artifactId>maven-surefire-plugin</artifactId>
+  <configuration>
+    <systemPropertyVariables>
+      <ephpo.range>30000-30999</ephpo.range>
+      <ephpo.timeout>8000</ephpo.timeout>
+    </systemPropertyVariables>
+  </configuration>
+</plugin>
+```
+
+For Gradle, configure the forked `Test` task explicitly:
+
+```groovy
+tasks.named('test') {
+    systemProperty 'ephpo.range', '30000-30999'
+    systemProperty 'ephpo.timeout', '8000'
+}
+```
+
+Passing `-D` to `gradlew` only configures the Gradle JVM; it does not
+automatically configure the test worker. Do not rely on `System.setProperty`
+inside a test or lifecycle method: the pool reads both values when JUnit
+instantiates the extension, which may already have happened. Code using the
+pool directly can avoid global properties with
+`new Ports("30000-30999", 8000L)`.
+
+The range must cover the peak number of ports reserved concurrently. The
+default provides 10,000 ports; expand the range if it is exhausted.
+
+Cross-process coordination uses byte-range locks in one zero-length registry,
+`${java.io.tmpdir}/ephpo/registry.lock`. The file is reused and may remain after
+the JVM exits.
 
 ephpo prevents cooperating JVMs from receiving the same port and skips ports
 already in use. It cannot prevent an unrelated process from deliberately
