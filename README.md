@@ -10,6 +10,8 @@ that simpler approach.
 
 Add ephpo as a test dependency:
 
+Maven:
+
 ```xml
 <dependency>
   <groupId>codes.ivanov</groupId>
@@ -17,6 +19,12 @@ Add ephpo as a test dependency:
   <version>0.1.0</version>
   <scope>test</scope>
 </dependency>
+```
+
+Gradle:
+
+```groovy
+testImplementation 'codes.ivanov:ephpo:0.1.0'
 ```
 
 Java 11 or newer and JUnit 5 are required.
