@@ -4,7 +4,6 @@
 [![Qulice](https://img.shields.io/github/check-runs/newink/ephpo/master?nameFilter=Quality%20%2F%20Qulice&label=Qulice)](https://github.com/newink/ephpo/actions/workflows/ci.yml)
 [![Test Coverage](https://codecov.io/gh/newink/ephpo/branch/master/graph/badge.svg)](https://codecov.io/gh/newink/ephpo)
 [![Maven Central](https://img.shields.io/maven-central/v/codes.ivanov/ephpo.svg)](https://central.sonatype.com/artifact/codes.ivanov/ephpo)
-[![Javadoc](https://javadoc.io/badge2/codes.ivanov/ephpo/javadoc.svg)](https://javadoc.io/doc/codes.ivanov/ephpo)
 [![Java 11+](https://img.shields.io/badge/Java-11%2B-007396?logo=openjdk&logoColor=white)](#install)
 
 Cross-process TCP port reservations for JUnit 5 tests.
