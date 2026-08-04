@@ -37,10 +37,10 @@ public final class EphemeralResolver implements ParameterResolver,
     private final Pool pool;
 
     /**
-     * New resolver backed by the shared pool.
+     * New resolver backed by its own pool.
      */
     public EphemeralResolver() {
-        this(Pool.SINGLETON);
+        this(new Ports());
     }
 
     /**
