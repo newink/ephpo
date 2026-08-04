@@ -35,7 +35,7 @@ public final class CrossJvmWorker {
     private static final int CHURN_BATCH = 400;
 
     /** Coordination wait timeout. */
-    private static final long COORDINATION_TIMEOUT = 5000L;
+    private static final long COORDINATION_TIMEOUT = 10_000L;
 
     /** Pool acquisition timeout used by contention workers. */
     private static final long POOL_TIMEOUT = 20_000L;
@@ -180,12 +180,37 @@ public final class CrossJvmWorker {
         final long hold) throws Exception {
         CrossJvmWorker.await(offer);
         final int port = Integer.parseInt(Files.readString(offer));
-        try (ServerSocket socket = new ServerSocket(port)) {
+        try (ServerSocket socket = CrossJvmWorker.bind(port)) {
             CrossJvmWorker.publish(
                 ready, Integer.toString(socket.getLocalPort())
             );
             Thread.sleep(hold);
         }
+    }
+
+    /**
+     * Bind a targeted port despite transient allocator-churn ownership.
+     * @param port Offered port
+     * @return Bound socket
+     * @throws Exception When the port never becomes available
+     */
+    private static ServerSocket bind(final int port) throws Exception {
+        final long deadline = System.currentTimeMillis()
+            + CrossJvmWorker.COORDINATION_TIMEOUT / 2L;
+        ServerSocket socket = null;
+        while (socket == null && System.currentTimeMillis() < deadline) {
+            try {
+                socket = new ServerSocket(port);
+            } catch (final BindException occupied) {
+                Thread.sleep(10L);
+            }
+        }
+        if (socket == null) {
+            throw new BindException(
+                String.format("Offered port stayed occupied: %d", port)
+            );
+        }
+        return socket;
     }
 
     /**
