@@ -22,7 +22,7 @@ Maven:
 <dependency>
   <groupId>codes.ivanov</groupId>
   <artifactId>ephpo</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.1</version>
   <scope>test</scope>
 </dependency>
 ```
@@ -30,7 +30,7 @@ Maven:
 Gradle:
 
 ```groovy
-testImplementation 'codes.ivanov:ephpo:0.1.0'
+testImplementation 'codes.ivanov:ephpo:0.1.1'
 ```
 
 Java 11 or newer and JUnit 5 are required.

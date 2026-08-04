@@ -10,6 +10,8 @@ remain compatible within their minor line, as stated in
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-08-05
+
 ### Added
 
 - `@API` stability annotations on every public type, so tools and users can
@@ -60,5 +62,6 @@ remain compatible within their minor line, as stated in
   `20000-29999` and `4000` milliseconds.
 - `NoFreePortException` with actionable diagnostics when a range is exhausted.
 
-[Unreleased]: https://github.com/newink/ephpo/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/newink/ephpo/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/newink/ephpo/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/newink/ephpo/releases/tag/v0.1.0
