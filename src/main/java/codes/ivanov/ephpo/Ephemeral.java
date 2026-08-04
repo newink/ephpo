@@ -9,11 +9,13 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import org.apiguardian.api.API;
 
 /**
  * Marks a JUnit 5 parameter or field that needs a reserved TCP port.
  * @since 0.1.0
  */
+@API(status = API.Status.STABLE, since = "0.1.0")
 @Documented
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)

@@ -4,10 +4,13 @@
  */
 package codes.ivanov.ephpo;
 
+import org.apiguardian.api.API;
+
 /**
  * Thrown when a pool cannot reserve a port before its timeout.
  * @since 0.1.0
  */
+@API(status = API.Status.STABLE, since = "0.1.0")
 public final class NoFreePortException extends IllegalStateException {
 
     /** Serialization marker. */

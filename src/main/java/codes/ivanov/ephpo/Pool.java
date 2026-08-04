@@ -4,6 +4,8 @@
  */
 package codes.ivanov.ephpo;
 
+import org.apiguardian.api.API;
+
 /**
  * A source of TCP ports reserved across cooperating processes on this host.
  *
@@ -13,6 +15,7 @@ package codes.ivanov.ephpo;
  *
  * @since 0.1.0
  */
+@API(status = API.Status.STABLE, since = "0.1.0")
 @FunctionalInterface
 public interface Pool {
 

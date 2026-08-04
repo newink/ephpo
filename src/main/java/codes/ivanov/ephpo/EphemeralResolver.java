@@ -9,6 +9,7 @@ import java.lang.invoke.VarHandle;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.concurrent.atomic.AtomicLong;
+import org.apiguardian.api.API;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionConfigurationException;
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
  * Injects {@link Ephemeral} parameters and fields for one test invocation.
  * @since 0.1.0
  */
+@API(status = API.Status.STABLE, since = "0.1.0")
 public final class EphemeralResolver implements ParameterResolver,
     BeforeEachCallback {
 
