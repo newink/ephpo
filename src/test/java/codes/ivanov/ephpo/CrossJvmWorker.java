@@ -74,6 +74,10 @@ public final class CrossJvmWorker {
             CrossJvmWorker.hold(
                 Path.of(args[1]), args[2], Long.parseLong(args[3])
             );
+        } else if ("probe".equals(mode)) {
+            CrossJvmWorker.probe(
+                Path.of(args[1]), args[2], Long.parseLong(args[3])
+            );
         } else {
             throw new IllegalArgumentException(
                 String.format("Unknown mode: %s", mode)
@@ -258,6 +262,25 @@ public final class CrossJvmWorker {
             );
             Thread.sleep(millis);
         }
+    }
+
+    /**
+     * Report whether a range can be acquired.
+     * @param directory Coordination directory
+     * @param range Single-port range
+     * @param millis Acquisition timeout
+     * @throws Exception When coordination fails
+     */
+    private static void probe(final Path directory, final String range,
+        final long millis) throws Exception {
+        CrossJvmWorker.publish(directory.resolve("ready.txt"), "ready");
+        String result = "acquired";
+        try (Reservation ignored = new Ports(range, millis).acquire()) {
+            ignored.port();
+        } catch (final NoFreePortException unavailable) {
+            result = "blocked";
+        }
+        CrossJvmWorker.publish(directory.resolve("result.txt"), result);
     }
 
     /**
