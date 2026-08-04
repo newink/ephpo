@@ -1,0 +1,98 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+  merge_group:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  qulice:
+    name: Quality / Qulice
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Set up Java 11
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "11"
+          cache: maven
+          cache-dependency-path: pom.xml
+      - name: Verify quality
+        run: >-
+          ./mvnw --batch-mode --no-transfer-progress
+          -DfailIfNoTests=true -Pqulice clean verify
+
+  e2e:
+    name: E2E / ${{ matrix.name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: linux
+            runner: ubuntu-24.04
+            maven: ./mvnw
+          - name: macos
+            runner: macos-15
+            maven: ./mvnw
+          - name: windows
+            runner: windows-latest
+            maven: .\mvnw.cmd
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Set up Java 11
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "11"
+          cache: maven
+          cache-dependency-path: pom.xml
+      - name: Run cross-JVM integration tests
+        run: >-
+          ${{ matrix.maven }} --batch-mode --no-transfer-progress
+          -DfailIfNoTests=true -Pe2e clean verify
+      - name: Preserve test diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: e2e-${{ matrix.name }}
+          path: |
+            target/surefire-reports/
+            target/failsafe-reports/
+            target/e2e-logs/
+          if-no-files-found: ignore
+
+  gate:
+    name: PR quality gate
+    if: ${{ always() }}
+    needs:
+      - qulice
+      - e2e
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Require every quality check
+        env:
+          QULICE_RESULT: ${{ needs.qulice.result }}
+          E2E_RESULT: ${{ needs.e2e.result }}
+        run: |
+          test "$QULICE_RESULT" = success
+          test "$E2E_RESULT" = success
