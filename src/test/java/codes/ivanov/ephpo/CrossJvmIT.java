@@ -121,6 +121,32 @@ final class CrossJvmIT {
         }
     }
 
+    @Test
+    @Timeout(10)
+    void closingOneRegionKeepsAnotherRegionLocked() throws Exception {
+        final Path directory = CrossJvmIT.directory("byte-range");
+        final Ports pool = new Ports(CrossJvmIT.range(), 4000L);
+        try (
+            Reservation first = pool.acquire();
+            Reservation second = pool.acquire()
+        ) {
+            final Path result = directory.resolve("result.txt");
+            final Process child = CrossJvmIT.start(
+                directory.resolve("probe.log"), "probe",
+                directory.toString(),
+                String.format("%d-%d", second.port(), second.port()), "1000"
+            );
+            try {
+                CrossJvmIT.await(directory.resolve("ready.txt"), child);
+                first.close();
+                CrossJvmIT.success(child, result);
+                Assertions.assertEquals("blocked", Files.readString(result));
+            } finally {
+                CrossJvmIT.stop(List.of(child));
+            }
+        }
+    }
+
     /**
      * Prove the harness catches the plain bind-zero race.
      * @param directory Diagnostics directory
