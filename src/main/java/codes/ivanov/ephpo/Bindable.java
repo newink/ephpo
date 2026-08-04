@@ -31,18 +31,31 @@ final class Bindable implements Attempt {
     /** Wrapped attempt. */
     private final Attempt origin;
 
+    /** Interfaces to probe. */
+    private final String[] hosts;
+
     /**
      * New probing attempt.
      * @param attempt Wrapped attempt
      */
     Bindable(final Attempt attempt) {
+        this(attempt, Bindable.HOSTS);
+    }
+
+    /**
+     * New probing attempt over the given interfaces.
+     * @param attempt Wrapped attempt
+     * @param probes Interfaces to probe
+     */
+    Bindable(final Attempt attempt, final String... probes) {
         this.origin = attempt;
+        this.hosts = probes.clone();
     }
 
     @Override
     public Optional<Reservation> made() {
         Optional<Reservation> result = this.origin.made();
-        if (result.isPresent() && !Bindable.free(result.get().port())) {
+        if (result.isPresent() && !this.free(result.get().port())) {
             result.get().close();
             result = Optional.empty();
         }
@@ -54,9 +67,9 @@ final class Bindable implements Attempt {
      * @param port Candidate port
      * @return Whether every probe succeeded
      */
-    private static boolean free(final int port) {
+    private boolean free(final int port) {
         boolean result = true;
-        for (final String host : Bindable.HOSTS) {
+        for (final String host : this.hosts) {
             final Optional<InetAddress> address = Bindable.resolve(host);
             if (address.isPresent()) {
                 try (ServerSocket socket = new ServerSocket()) {

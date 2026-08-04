@@ -42,6 +42,13 @@ final class ResolverFailureTest {
     }
 
     @Test
+    void rejectsWrongFieldType() {
+        ResolverFailureTest.assertFailure(
+            WrongField.class, "must be int or Integer"
+        );
+    }
+
+    @Test
     void rejectsStaticFields() {
         ResolverFailureTest.assertFailure(
             StaticField.class, "instance fields only"
@@ -146,6 +153,20 @@ final class ResolverFailureTest {
         @Test
         void invalid(@Ephemeral final String port) {
             Assertions.fail(String.format("unexpected parameter: %s", port));
+        }
+    }
+
+    /** Wrong field type case. */
+    @ExtendWith(EphemeralResolver.class)
+    static final class WrongField {
+
+        /** Invalid target type. */
+        @Ephemeral
+        private String port;
+
+        @Test
+        void invalid() {
+            Assertions.fail(String.format("unexpected field: %s", this.port));
         }
     }
 
