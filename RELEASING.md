@@ -1,8 +1,9 @@
 # Releasing ephpo
 
 Releases are immutable and are published only from commits already merged into
-`master`. During the `0.x` series, minor releases may change the API; patch
-releases remain compatible within their minor line.
+`master`. From 1.0.0 on, minor releases only add to the public API and patch
+releases only fix behaviour; removing or narrowing anything published waits
+for the next major.
 
 ## One-time setup
 
@@ -28,15 +29,15 @@ the macOS Keychain item `ephpo-maven-gpg-passphrase`.
    ```bash
    git switch master
    git pull --ff-only
-   git tag -a v0.1.0 -m "ephpo 0.1.0"
-   git push origin v0.1.0
+   git tag -a v1.0.0 -m "ephpo 1.0.0"
+   git push origin v1.0.0
    ```
 
 3. Approve the `maven-central` deployment in GitHub Actions. The workflow
    verifies the tag, reruns the complete quality matrix, signs every artifact,
    and waits until Central reports the deployment as published.
 4. Change `pom.xml` to the next development version, for example
-   `0.1.1-SNAPSHOT`, in a new pull request.
+   `1.0.1-SNAPSHOT`, in a new pull request.
 
 If a release fails before Central reports `published`, fix the configuration
 and rerun the failed workflow. Published coordinates cannot be replaced or

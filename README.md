@@ -22,7 +22,7 @@ Maven:
 <dependency>
   <groupId>codes.ivanov</groupId>
   <artifactId>ephpo</artifactId>
-  <version>0.1.1</version>
+  <version>1.0.0</version>
   <scope>test</scope>
 </dependency>
 ```
@@ -30,7 +30,7 @@ Maven:
 Gradle:
 
 ```groovy
-testImplementation 'codes.ivanov:ephpo:0.1.1'
+testImplementation 'codes.ivanov:ephpo:1.0.0'
 ```
 
 Java 11 or newer and JUnit 5 are required.
@@ -91,7 +91,7 @@ try (Reservation reservation = new Ports().acquire()) {
 
 A pool holds no state worth sharing, so construct `Ports` wherever you need
 it. `Pool.SINGLETON` still works but is deprecated and will be removed in
-0.2.0.
+2.0.0.
 
 ## Configure
 
