@@ -10,6 +10,20 @@ remain compatible within their minor line, as stated in
 
 ## [Unreleased]
 
+### Changed
+
+- JUnit moved to 5.14.4 and is now managed through `junit-bom`, so one version
+  covers every Jupiter and Platform artifact. The 5.x line is the last one that
+  keeps the Java 11 baseline this library promises; JUnit 6 requires Java 17,
+  so Dependabot is told to skip major JUnit updates until the baseline moves.
+
+### Fixed
+
+- Reservations parked in the JUnit store are released by every engine from
+  5.1 onwards. They used to implement only `CloseableResource`, deprecated in
+  JUnit 5.13, which made engines from that version on log a warning about it;
+  they now implement `AutoCloseable` as well.
+
 ## [0.1.1] - 2026-08-05
 
 ### Added
