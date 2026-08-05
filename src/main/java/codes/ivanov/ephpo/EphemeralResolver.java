@@ -100,7 +100,7 @@ public final class EphemeralResolver implements ParameterResolver,
         final Reservation reservation = this.pool.acquire();
         extension.getStore(EphemeralResolver.NAMESPACE).put(
             EphemeralResolver.KEYS.incrementAndGet(),
-            (ExtensionContext.Store.CloseableResource) reservation::close
+            new Parked(reservation)
         );
         return reservation.port();
     }
