@@ -10,6 +10,12 @@ updates:
     open-pull-requests-limit: 5
     commit-message:
       prefix: "Bump"
+    ignore:
+      # JUnit 6 requires Java 17, while this library keeps a Java 11 baseline.
+      # Lift this once the baseline moves.
+      - dependency-name: "org.junit*"
+        update-types:
+          - "version-update:semver-major"
     groups:
       junit:
         patterns:
