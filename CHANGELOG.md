@@ -4,18 +4,29 @@ All notable changes to this project are documented here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-During the `0.x` series, minor releases may change the API; patch releases
-remain compatible within their minor line, as stated in
+From 1.0.0 on, the public API stays compatible within a major line; anything
+that removes or narrows it waits for the next major, as stated in
 [RELEASING.md](RELEASING.md).
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-08-05
+
 ### Changed
 
+- The public API is declared stable. It is unchanged from 0.1.1, so this
+  release only turns the promise about it into a major number: nothing already
+  published is removed or narrowed before 2.0.0.
 - JUnit moved to 5.14.4 and is now managed through `junit-bom`, so one version
   covers every Jupiter and Platform artifact. The 5.x line is the last one that
   keeps the Java 11 baseline this library promises; JUnit 6 requires Java 17,
   so Dependabot is told to skip major JUnit updates until the baseline moves.
+
+### Deprecated
+
+- `Pool.SINGLETON` stays deprecated, but its removal moves from 0.2.0 to
+  2.0.0. A stable major line cannot drop what it publishes, so the constant
+  outlives the plan announced in 0.1.1.
 
 ### Fixed
 
@@ -76,6 +87,7 @@ remain compatible within their minor line, as stated in
   `20000-29999` and `4000` milliseconds.
 - `NoFreePortException` with actionable diagnostics when a range is exhausted.
 
-[Unreleased]: https://github.com/newink/ephpo/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/newink/ephpo/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/newink/ephpo/compare/v0.1.1...v1.0.0
 [0.1.1]: https://github.com/newink/ephpo/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/newink/ephpo/releases/tag/v0.1.0

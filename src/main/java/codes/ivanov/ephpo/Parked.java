@@ -14,7 +14,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
  * deprecated. This object is both, so the port comes back on either
  * engine.</p>
  *
- * @since 0.1.2
+ * @since 1.0.0
  */
 @SuppressWarnings("deprecation")
 final class Parked implements AutoCloseable,
