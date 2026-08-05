@@ -33,7 +33,6 @@ final class Patient implements Pool {
      * @param span Range the attempt draws from
      * @param millis Acquisition timeout in milliseconds
      */
-    // @checkstyle ConstructorsCodeFreeCheck (10 lines)
     Patient(final Attempt attempt, final Range span, final long millis) {
         if (millis < 1L) {
             throw new IllegalArgumentException("Timeout must be positive");
