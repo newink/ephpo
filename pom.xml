@@ -7,7 +7,7 @@ SPDX-License-Identifier: MIT
   <modelVersion>4.0.0</modelVersion>
   <groupId>codes.ivanov</groupId>
   <artifactId>ephpo</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>ephpo</name>
   <description>Ephemeral TCP ports for JUnit 5 tests, guaranteed not to collide across processes</description>
