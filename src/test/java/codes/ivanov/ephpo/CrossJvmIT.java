@@ -29,32 +29,17 @@ final class CrossJvmIT {
     /** Number of allocator churn processes. */
     private static final int CHURNERS = 4;
 
-    /** Churn lifetime. */
-    private static final long CHURN_MILLIS = 120_000L;
-
     /** Number of empirical bind-zero controls. */
     private static final int CONTROLS = 4;
 
     /** Attempts per empirical bind-zero control. */
     private static final int CONTROL_RUNS = 300;
 
-    /** Bind-zero race window. */
-    private static final long CONTROL_HOLD = 50L;
-
     /** Number of pool clients. */
     private static final int CLIENTS = 6;
 
     /** Acquisitions per pool client. */
     private static final int CLIENT_RUNS = 40;
-
-    /** Duration of a real server bind. */
-    private static final long CLIENT_HOLD = 50L;
-
-    /** Maximum child-process wait. */
-    private static final long PROCESS_TIMEOUT = 45L;
-
-    /** Crash-test child hold time. */
-    private static final long CRASH_HOLD = 30_000L;
 
     /** Size of the deliberately capacity-constrained pool. */
     private static final int RANGE_SIZE = 4;
@@ -100,7 +85,7 @@ final class CrossJvmIT {
         final Path ready = directory.resolve("ready.txt");
         final Process child = CrossJvmIT.start(
             directory.resolve("holder.log"), "hold", ready.toString(),
-            range, Long.toString(CrossJvmIT.CRASH_HOLD)
+            range, Long.toString(30_000L)
         );
         try {
             CrossJvmIT.await(ready, child);
@@ -147,11 +132,7 @@ final class CrossJvmIT {
         }
     }
 
-    /**
-     * Prove the harness catches the plain bind-zero race.
-     * @param directory Diagnostics directory
-     * @throws Exception When either child fails
-     */
+    // Prove the harness catches the plain bind-zero race.
     private static void positiveControl(final Path directory) throws Exception {
         final Path offer = directory.resolve("control-offer.txt");
         final Path ready = directory.resolve("control-ready.txt");
@@ -176,11 +157,7 @@ final class CrossJvmIT {
         }
     }
 
-    /**
-     * Measure ordinary bind-zero theft under the active churn processes.
-     * @param directory Diagnostics directory
-     * @throws Exception When a measuring process fails
-     */
+    // Measure ordinary bind-zero theft under the active churn processes.
     private static void measureControl(final Path directory) throws Exception {
         final List<Process> processes = new ArrayList<>(CrossJvmIT.CONTROLS);
         final List<Path> results = new ArrayList<>(CrossJvmIT.CONTROLS);
@@ -198,7 +175,7 @@ final class CrossJvmIT {
                         ),
                         "naive", result.toString(),
                         Integer.toString(CrossJvmIT.CONTROL_RUNS),
-                        Long.toString(CrossJvmIT.CONTROL_HOLD)
+                        Long.toString(50L)
                     )
                 );
             }
@@ -232,12 +209,7 @@ final class CrossJvmIT {
         }
     }
 
-    /**
-     * Wait for proof that every churn process has allocated sockets.
-     * @param directory Diagnostics directory
-     * @param processes Churn processes
-     * @throws Exception When churn does not start
-     */
+    // Wait for proof that every churn process has allocated sockets.
     private static void awaitChurn(final Path directory,
         final List<Process> processes) throws Exception {
         for (int idx = 0; idx < processes.size(); idx += 1) {
@@ -252,10 +224,7 @@ final class CrossJvmIT {
         }
     }
 
-    /**
-     * Assert every background process is still applying pressure.
-     * @param processes Churn processes
-     */
+    // Assert every background process is still applying pressure.
     private static void assertAlive(final List<Process> processes) {
         Assertions.assertTrue(
             processes.stream().allMatch(Process::isAlive),
@@ -263,12 +232,7 @@ final class CrossJvmIT {
         );
     }
 
-    /**
-     * Start operating-system allocator churn.
-     * @param directory Diagnostics directory
-     * @return Child processes
-     * @throws IOException When a child cannot start
-     */
+    // Start operating-system allocator churn.
     private static List<Process> churners(final Path directory)
         throws IOException {
         final List<Process> processes = new ArrayList<>(CrossJvmIT.CHURNERS);
@@ -277,7 +241,7 @@ final class CrossJvmIT {
                 processes.add(
                     CrossJvmIT.start(
                         directory.resolve(String.format("churn-%d.log", idx)),
-                        "churn", Long.toString(CrossJvmIT.CHURN_MILLIS),
+                        "churn", Long.toString(120_000L),
                         directory.resolve(
                             String.format("churn-%d.ready", idx)
                         ).toString()
@@ -291,13 +255,7 @@ final class CrossJvmIT {
         return processes;
     }
 
-    /**
-     * Start and await competing pool clients.
-     * @param directory Diagnostics directory
-     * @param range Shared narrow range
-     * @return Result files
-     * @throws Exception When any child fails
-     */
+    // Start and await competing pool clients.
     private static List<Path> startClients(final Path directory,
         final String range) throws Exception {
         final List<Process> processes = new ArrayList<>(CrossJvmIT.CLIENTS);
@@ -320,7 +278,7 @@ final class CrossJvmIT {
                         directory.resolve(String.format("pool-%d.log", idx)),
                         "pool", result.toString(),
                         Integer.toString(CrossJvmIT.CLIENT_RUNS),
-                        Long.toString(CrossJvmIT.CLIENT_HOLD), range,
+                        Long.toString(50L), range,
                         waiting.toString(), start.toString()
                     )
                 );
@@ -341,11 +299,7 @@ final class CrossJvmIT {
         return results;
     }
 
-    /**
-     * Locate a free contiguous block outside common ephemeral ranges.
-     * @return Inclusive range
-     * @throws IOException When probes fail
-     */
+    // Locate a free contiguous block outside common ephemeral ranges.
     private static String range() throws IOException {
         String range = null;
         int first = CrossJvmIT.RANGE_START;
@@ -367,11 +321,7 @@ final class CrossJvmIT {
         return range;
     }
 
-    /**
-     * Probe one fixed port.
-     * @param port Port number
-     * @return Whether it is available
-     */
+    // Probe one fixed port.
     private static boolean available(final int port) {
         boolean available = true;
         try (ServerSocket ignored = new ServerSocket(port)) {
@@ -382,13 +332,7 @@ final class CrossJvmIT {
         return available;
     }
 
-    /**
-     * Start a Java child process.
-     * @param log Standard output and error log
-     * @param args Worker arguments
-     * @return Child process
-     * @throws IOException When the child cannot start
-     */
+    // Start a Java child process.
     private static Process start(final Path log, final String... args)
         throws IOException {
         final List<String> command = new ArrayList<>(args.length + 5);
@@ -410,16 +354,11 @@ final class CrossJvmIT {
             .start();
     }
 
-    /**
-     * Assert successful process completion and a result file.
-     * @param process Child process
-     * @param result Expected result
-     * @throws Exception When the child times out or fails
-     */
+    // Assert successful process completion and a result file.
     private static void success(final Process process, final Path result)
         throws Exception {
         final boolean finished = process.waitFor(
-            CrossJvmIT.PROCESS_TIMEOUT, TimeUnit.SECONDS
+            45L, TimeUnit.SECONDS
         );
         if (!finished) {
             process.destroyForcibly();
@@ -431,12 +370,7 @@ final class CrossJvmIT {
         Assertions.assertTrue(Files.isRegularFile(result), result.toString());
     }
 
-    /**
-     * Wait until a holder has acquired its reservation.
-     * @param ready Readiness file
-     * @param process Holder process
-     * @throws Exception When readiness is not reported
-     */
+    // Wait until a holder has acquired its reservation.
     private static void await(final Path ready, final Process process)
         throws Exception {
         final long deadline = System.currentTimeMillis() + 5000L;
@@ -447,10 +381,7 @@ final class CrossJvmIT {
         Assertions.assertTrue(Files.isRegularFile(ready), ready.toString());
     }
 
-    /**
-     * Stop background children.
-     * @param processes Child processes
-     */
+    // Stop background children.
     private static void stop(final List<Process> processes) {
         for (final Process process : processes) {
             process.destroyForcibly();
@@ -465,23 +396,14 @@ final class CrossJvmIT {
         }
     }
 
-    /**
-     * Create a clean diagnostic directory.
-     * @param name Test name
-     * @return Directory
-     * @throws IOException When it cannot be created
-     */
+    // Create a clean diagnostic directory.
     private static Path directory(final String name) throws IOException {
         final Path root = Path.of("target", "e2e-logs").toAbsolutePath();
         Files.createDirectories(root);
         return Files.createTempDirectory(root, String.format("%s-", name));
     }
 
-    /**
-     * Find a currently available fixed-range port.
-     * @return Port number
-     * @throws IOException When the probe fails
-     */
+    // Find a currently available fixed-range port.
     private static int availablePort() throws IOException {
         int available = 0;
         int candidate = CrossJvmIT.RANGE_START;
@@ -497,10 +419,7 @@ final class CrossJvmIT {
         return available;
     }
 
-    /**
-     * Locate the current JVM executable without shell assumptions.
-     * @return Executable path
-     */
+    // Locate the current JVM executable without shell assumptions.
     private static String java() {
         final String executable;
         if (System.getProperty("os.name").startsWith("Windows")) {

@@ -89,11 +89,7 @@ final class ResolverFailureTest {
         Assertions.assertEquals(1L, summary.getTestsSucceededCount());
     }
 
-    /**
-     * Assert a launched test fails with useful text.
-     * @param type Test class
-     * @param text Expected message fragment
-     */
+    // Assert a launched test fails with useful text.
     private static void assertFailure(final Class<?> type, final String text) {
         final List<TestExecutionSummary.Failure> failures =
             ResolverFailureTest.execute(type, false).getFailures();
@@ -104,11 +100,7 @@ final class ResolverFailureTest {
         );
     }
 
-    /**
-     * Assert all launched tests succeed.
-     * @param type Test class
-     * @param total Expected successful tests
-     */
+    // Assert all launched tests succeed.
     private static void assertSuccess(final Class<?> type, final long total) {
         final TestExecutionSummary summary = ResolverFailureTest.execute(
             type, false
@@ -117,13 +109,7 @@ final class ResolverFailureTest {
         Assertions.assertEquals(total, summary.getTestsSucceededCount());
     }
 
-    /**
-     * Launch one nested test class.
-     * @param type Test class
-     * @param autodetect Whether extension auto-detection is enabled
-     * @return Execution summary
-     * @since 0.1.0
-     */
+    // Launch one nested test class.
     private static TestExecutionSummary execute(final Class<?> type,
         final boolean autodetect) {
         final LauncherDiscoveryRequestBuilder builder =

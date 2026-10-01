@@ -189,11 +189,7 @@ final class PortsTest {
         }
     }
 
-    /**
-     * Unwrap a completed task.
-     * @param future Completed task
-     * @return Port number
-     */
+    // Unwrap a completed task.
     private static Integer value(final Future<Integer> future) {
         try {
             return future.get();

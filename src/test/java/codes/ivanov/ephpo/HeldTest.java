@@ -52,12 +52,7 @@ final class HeldTest {
         Assertions.assertEquals(1, given.get());
     }
 
-    /**
-     * Open a registry-like file.
-     * @param folder Temporary folder
-     * @return Open channel
-     * @throws IOException When the file cannot be opened
-     */
+    // Open a registry-like file.
     private static FileChannel channel(final Path folder) throws IOException {
         return FileChannel.open(
             folder.resolve("registry.lock"),

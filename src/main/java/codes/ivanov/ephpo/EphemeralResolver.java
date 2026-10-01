@@ -91,11 +91,7 @@ public final class EphemeralResolver implements ParameterResolver,
         }
     }
 
-    /**
-     * Park a reservation in the invocation-scoped JUnit store.
-     * @param extension Current extension context
-     * @return Reserved port
-     */
+    // Park a reservation in the invocation-scoped JUnit store.
     private Integer park(final ExtensionContext extension) {
         final Reservation reservation = this.pool.acquire();
         extension.getStore(EphemeralResolver.NAMESPACE).put(
@@ -105,12 +101,7 @@ public final class EphemeralResolver implements ParameterResolver,
         return reservation.port();
     }
 
-    /**
-     * Assign an annotated field.
-     * @param test Test instance
-     * @param field Annotated field
-     * @param extension Current extension context
-     */
+    // Assign an annotated field.
     private void inject(final Object test, final Field field,
         final ExtensionContext extension) {
         if (extension.getExecutionMode().equals(ExecutionMode.CONCURRENT)
@@ -164,11 +155,7 @@ public final class EphemeralResolver implements ParameterResolver,
         }
     }
 
-    /**
-     * Check whether a type can receive a port number.
-     * @param type Candidate type
-     * @return Whether it is supported
-     */
+    // Check whether a type can receive a port number.
     private static boolean supported(final Class<?> type) {
         return type.equals(Integer.TYPE) || type.equals(Integer.class);
     }

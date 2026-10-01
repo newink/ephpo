@@ -13,12 +13,6 @@ import java.util.concurrent.ThreadLocalRandom;
 @SuppressWarnings("PMD.ConstructorOnlyInitializesOrCallOtherConstructors")
 final class Range {
 
-    /** Lowest port a range may start at. */
-    private static final int FLOOR = 1;
-
-    /** Highest port a range may end at. */
-    private static final int CEILING = 65_535;
-
     /** Lower boundary. */
     private final int lower;
 
@@ -39,7 +33,7 @@ final class Range {
         }
         this.lower = Integer.parseInt(parts[0].trim());
         this.upper = Integer.parseInt(parts[1].trim());
-        if (this.lower < Range.FLOOR || this.upper > Range.CEILING
+        if (this.lower < 1 || this.upper > 65_535
             || this.lower > this.upper) {
             throw new IllegalArgumentException(
                 String.format("Invalid port range: %s", text)
