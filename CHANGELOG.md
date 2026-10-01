@@ -10,6 +10,20 @@ that removes or narrows it waits for the next major, as stated in
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-10-02
+
+### Changed
+
+- Updated Maven Compiler to 3.16.0, Surefire and Failsafe to 3.6.0,
+  and Qulice to 0.35.1. Moved the shared registry channel into its own class,
+  converted private-method Javadoc to ordinary comments, and inlined
+  constants used once. The public API and port reservation behavior are
+  unchanged.
+- Updated GitHub Actions for Java setup, coverage uploads, and CodeQL.
+- Rewrote the README with examples for JUnit and the reservation API,
+  test JVM settings, and the shared registry requirement. Updated
+  CONTRIBUTING.md to match the new Qulice rules.
+
 ## [1.0.0] - 2026-08-05
 
 ### Changed
@@ -87,7 +101,8 @@ that removes or narrows it waits for the next major, as stated in
   `20000-29999` and `4000` milliseconds.
 - `NoFreePortException` with actionable diagnostics when a range is exhausted.
 
-[Unreleased]: https://github.com/newink/ephpo/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/newink/ephpo/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/newink/ephpo/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/newink/ephpo/compare/v0.1.1...v1.0.0
 [0.1.1]: https://github.com/newink/ephpo/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/newink/ephpo/releases/tag/v0.1.0
