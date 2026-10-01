@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @since 0.1.1
  */
-@SuppressWarnings({"PMD.CloseResource", "PMD.NullAssignment"})
+@SuppressWarnings("PMD.CloseResource")
 final class Registry {
 
     /** Diagnostic logger. */
@@ -38,14 +38,8 @@ final class Registry {
         Registry.class.getName()
     );
 
-    /** Registry file name. */
-    private static final String FILE = "registry.lock";
-
-    /** Size of one port's lock region. */
-    private static final long REGION = 1L;
-
     /** Channels shared by every reservation on their registry file. */
-    private static final Map<Path, Registry.Shared> SHARED =
+    private static final Map<Path, Shared> SHARED =
         new ConcurrentHashMap<>(1);
 
     /** Registry directory. */
@@ -67,14 +61,12 @@ final class Registry {
      */
     Optional<Reservation> hold(final int port) throws IOException {
         Files.createDirectories(this.directory);
-        final Registry.Shared shared = Registry.shared(
-            this.directory.resolve(Registry.FILE)
+        final Shared shared = Registry.shared(
+            this.directory.resolve("registry.lock")
         );
         Optional<Reservation> result = Optional.empty();
         try {
-            final FileLock lock = shared.channel.tryLock(
-                port, Registry.REGION, false
-            );
+            final FileLock lock = shared.channel().tryLock(port, 1L, false);
             if (lock != null) {
                 result = Optional.of(new Held(port, lock, shared::give));
             }
@@ -91,14 +83,9 @@ final class Registry {
         return result;
     }
 
-    /**
-     * Take one reference to the JVM's channel for a registry file.
-     * @param file Registry file
-     * @return Shared channel, with this reference counted in
-     * @throws IOException When the channel cannot be opened
-     */
-    private static Registry.Shared shared(final Path file) throws IOException {
-        final Registry.Shared result;
+    // Take one reference to the JVM's channel for a registry file.
+    private static Shared shared(final Path file) throws IOException {
+        final Shared result;
         try {
             result = Registry.SHARED.compute(file, Registry::taken);
         } catch (final UncheckedIOException wrapped) {
@@ -109,27 +96,17 @@ final class Registry {
         return result;
     }
 
-    /**
-     * Count one more reference in, opening the channel when it is the first.
-     * @param file Registry file
-     * @param existing Shared channel, when this JVM already opened one
-     * @return Shared channel
-     */
-    private static Registry.Shared taken(final Path file,
-        final Registry.Shared existing) {
-        Registry.Shared result = existing;
+    // Count one more reference in, opening the channel when it is the first.
+    private static Shared taken(final Path file, final Shared existing) {
+        Shared result = existing;
         if (result == null) {
-            result = new Registry.Shared(file, Registry.open(file));
+            result = new Shared(file, Registry.open(file), Registry.SHARED);
         }
-        result.count += 1;
+        result.take();
         return result;
     }
 
-    /**
-     * Open one registry file.
-     * @param file Registry file
-     * @return Open channel
-     */
+    // Open one registry file.
     private static FileChannel open(final Path file) {
         try {
             return FileChannel.open(
@@ -137,66 +114,6 @@ final class Registry {
             );
         } catch (final IOException failure) {
             throw new UncheckedIOException(failure);
-        }
-    }
-
-    /**
-     * Close a channel without masking the reason it is being closed.
-     * @param channel Channel
-     */
-    private static void close(final FileChannel channel) {
-        try {
-            channel.close();
-        } catch (final IOException failure) {
-            Registry.LOG.log(
-                System.Logger.Level.DEBUG,
-                "Unable to close port lock channel", failure
-            );
-        }
-    }
-
-    /**
-     * One open channel and the reservations still relying on it.
-     * @since 0.1.1
-     */
-    private static final class Shared {
-
-        /** Registry file. */
-        private final Path file;
-
-        /** Channel shared by every reservation on the file. */
-        private final FileChannel channel;
-
-        /** Reservations relying on the channel. */
-        private int count;
-
-        /**
-         * New shared channel.
-         * @param path Registry file
-         * @param origin Channel
-         */
-        Shared(final Path path, final FileChannel origin) {
-            this.file = path;
-            this.channel = origin;
-            this.count = 0;
-        }
-
-        /**
-         * Give one reference back, closing the channel with the last one.
-         */
-        void give() {
-            Registry.SHARED.computeIfPresent(
-                this.file,
-                (path, current) -> {
-                    Registry.Shared result = current;
-                    current.count -= 1;
-                    if (current.count == 0) {
-                        Registry.close(current.channel);
-                        result = null;
-                    }
-                    return result;
-                }
-            );
         }
     }
 }

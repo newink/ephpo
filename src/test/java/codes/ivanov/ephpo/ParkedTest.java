@@ -38,11 +38,7 @@ final class ParkedTest {
         );
     }
 
-    /**
-     * Reservation counting its own closures.
-     * @param closed Counter to raise on close
-     * @return Reservation
-     */
+    // Reservation counting its own closures.
     private static Reservation reservation(final AtomicInteger closed) {
         return new Reservation() {
             @Override

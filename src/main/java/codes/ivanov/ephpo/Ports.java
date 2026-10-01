@@ -14,15 +14,6 @@ import org.apiguardian.api.API;
 @API(status = API.Status.STABLE, since = "0.1.0")
 public final class Ports implements Pool {
 
-    /** Default allocation range. */
-    private static final String DEFAULT_RANGE = "20000-29999";
-
-    /** Default acquisition timeout. */
-    private static final long DEFAULT_TIMEOUT = 4000L;
-
-    /** Lock registry directory name. */
-    private static final String DIRECTORY = "ephpo";
-
     /** Composed pool. */
     private final Pool origin;
 
@@ -31,8 +22,8 @@ public final class Ports implements Pool {
      */
     public Ports() {
         this(
-            System.getProperty("ephpo.range", Ports.DEFAULT_RANGE),
-            Long.getLong("ephpo.timeout", Ports.DEFAULT_TIMEOUT)
+            System.getProperty("ephpo.range", "20000-29999"),
+            Long.getLong("ephpo.timeout", 4000L)
         );
     }
 
@@ -59,7 +50,7 @@ public final class Ports implements Pool {
                         new Registry(
                             Path.of(
                                 System.getProperty("java.io.tmpdir"),
-                                Ports.DIRECTORY
+                                "ephpo"
                             ).toAbsolutePath().normalize()
                         )
                     )

@@ -62,11 +62,7 @@ final class Bindable implements Attempt {
         return result;
     }
 
-    /**
-     * Probe a port on every relevant local interface.
-     * @param port Candidate port
-     * @return Whether every probe succeeded
-     */
+    // Probe a port on every relevant local interface.
     private boolean free(final int port) {
         boolean result = true;
         for (final String host : this.hosts) {
@@ -85,11 +81,7 @@ final class Bindable implements Attempt {
         return result;
     }
 
-    /**
-     * Resolve a local probe interface.
-     * @param host Interface name or address
-     * @return The address, when this host knows it
-     */
+    // Resolve a local probe interface.
     private static Optional<InetAddress> resolve(final String host) {
         Optional<InetAddress> result;
         try {

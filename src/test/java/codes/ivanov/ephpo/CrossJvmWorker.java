@@ -38,9 +38,6 @@ public final class CrossJvmWorker {
     /** Coordination wait timeout. */
     private static final long COORDINATION_TIMEOUT = 10_000L;
 
-    /** Pool acquisition timeout used by contention workers. */
-    private static final long POOL_TIMEOUT = 20_000L;
-
     /** Utility class. */
     private CrossJvmWorker() {
         // Intentionally empty.
@@ -85,12 +82,7 @@ public final class CrossJvmWorker {
         }
     }
 
-    /**
-     * Create pressure on the operating system's ephemeral allocator.
-     * @param millis Run duration
-     * @param heartbeat Proof that allocations happened
-     * @throws IOException When sockets cannot be closed
-     */
+    // Create pressure on the operating system's ephemeral allocator.
     private static void churn(final long millis, final Path heartbeat)
         throws IOException {
         final long deadline = System.currentTimeMillis() + millis;
@@ -121,13 +113,7 @@ public final class CrossJvmWorker {
         CrossJvmWorker.close(sockets);
     }
 
-    /**
-     * Measure the ordinary bind-zero race under allocator churn.
-     * @param output Result file
-     * @param runs Number of attempts
-     * @param hold Race window
-     * @throws Exception When the measurement cannot complete
-     */
+    // Measure the ordinary bind-zero race under allocator churn.
     private static void naive(final Path output, final int runs,
         final long hold) throws Exception {
         int lost = 0;
@@ -148,13 +134,7 @@ public final class CrossJvmWorker {
         );
     }
 
-    /**
-     * Publish a naively selected port and prove another JVM can steal it.
-     * @param output Result file
-     * @param offer Offered port file
-     * @param ready Thief readiness file
-     * @throws Exception When the control cannot complete
-     */
+    // Publish a naively selected port and prove another JVM can steal it.
     private static void owner(final Path output, final Path offer,
         final Path ready) throws Exception {
         final int port;
@@ -174,13 +154,7 @@ public final class CrossJvmWorker {
         }
     }
 
-    /**
-     * Bind the port published by the naïve owner.
-     * @param offer Offered port file
-     * @param ready Readiness file
-     * @param hold Bind duration
-     * @throws Exception When the control cannot complete
-     */
+    // Bind the port published by the naïve owner.
     private static void thief(final Path offer, final Path ready,
         final long hold) throws Exception {
         CrossJvmWorker.await(offer);
@@ -193,12 +167,7 @@ public final class CrossJvmWorker {
         }
     }
 
-    /**
-     * Bind a targeted port despite transient allocator-churn ownership.
-     * @param port Offered port
-     * @return Bound socket
-     * @throws Exception When the port never becomes available
-     */
+    // Bind a targeted port despite transient allocator-churn ownership.
     private static ServerSocket bind(final int port) throws Exception {
         final long deadline = System.currentTimeMillis()
             + CrossJvmWorker.COORDINATION_TIMEOUT / 2L;
@@ -218,11 +187,7 @@ public final class CrossJvmWorker {
         return socket;
     }
 
-    /**
-     * Repeatedly acquire through the real pool and bind a server.
-     * @param args Mode, log, count, hold, range, ready, and start files
-     * @throws Exception When an acquisition or bind fails
-     */
+    // Repeatedly acquire through the real pool and bind a server.
     private static void pool(final String... args) throws Exception {
         final Path output = Path.of(args[1]);
         final int runs = Integer.parseInt(args[2]);
@@ -236,7 +201,7 @@ public final class CrossJvmWorker {
         for (int idx = 0; idx < runs; idx += 1) {
             try (
                 Reservation reservation = new Ports(
-                    range, CrossJvmWorker.POOL_TIMEOUT
+                    range, 20_000L
                 ).acquire();
                 ServerSocket server = new ServerSocket(reservation.port())
             ) {
@@ -247,13 +212,7 @@ public final class CrossJvmWorker {
         CrossJvmWorker.publish(output, ports.toString());
     }
 
-    /**
-     * Hold one reservation until killed or the timeout expires.
-     * @param ready Readiness file
-     * @param range Single-port range
-     * @param millis Hold duration
-     * @throws Exception When acquisition fails
-     */
+    // Hold one reservation until killed or the timeout expires.
     private static void hold(final Path ready, final String range,
         final long millis) throws Exception {
         try (Reservation reservation = new Ports(range, 4000L).acquire()) {
@@ -264,13 +223,7 @@ public final class CrossJvmWorker {
         }
     }
 
-    /**
-     * Report whether a range can be acquired.
-     * @param directory Coordination directory
-     * @param range Single-port range
-     * @param millis Acquisition timeout
-     * @throws Exception When coordination fails
-     */
+    // Report whether a range can be acquired.
     private static void probe(final Path directory, final String range,
         final long millis) throws Exception {
         CrossJvmWorker.publish(directory.resolve("ready.txt"), "ready");
@@ -283,11 +236,7 @@ public final class CrossJvmWorker {
         CrossJvmWorker.publish(directory.resolve("result.txt"), result);
     }
 
-    /**
-     * Wait for another worker's coordination file.
-     * @param file Expected file
-     * @throws Exception When coordination times out
-     */
+    // Wait for another worker's coordination file.
     private static void await(final Path file) throws Exception {
         final long deadline = System.currentTimeMillis()
             + CrossJvmWorker.COORDINATION_TIMEOUT;
@@ -302,12 +251,7 @@ public final class CrossJvmWorker {
         }
     }
 
-    /**
-     * Publish a coordination result atomically.
-     * @param file Destination
-     * @param value Contents
-     * @throws IOException When the result cannot be published
-     */
+    // Publish a coordination result atomically.
     private static void publish(final Path file, final String value)
         throws IOException {
         final Path temporary = file.resolveSibling(
@@ -329,11 +273,7 @@ public final class CrossJvmWorker {
         }
     }
 
-    /**
-     * Close every socket in a churn batch.
-     * @param sockets Open sockets
-     * @throws IOException When a close fails
-     */
+    // Close every socket in a churn batch.
     private static void close(final List<ServerSocket> sockets)
         throws IOException {
         for (final ServerSocket socket : sockets) {

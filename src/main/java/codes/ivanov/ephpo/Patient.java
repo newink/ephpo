@@ -12,12 +12,6 @@ import java.util.Optional;
  */
 final class Patient implements Pool {
 
-    /** Retry count between cooperative sleeps. */
-    private static final int BACKOFF_FREQUENCY = 64;
-
-    /** Cooperative sleep duration. */
-    private static final long BACKOFF_MILLIS = 1L;
-
     /** Wrapped attempt. */
     private final Attempt origin;
 
@@ -60,16 +54,12 @@ final class Patient implements Pool {
         );
     }
 
-    /**
-     * Yield the CPU every so often, and report interruption.
-     * @param attempts Candidate count so far
-     * @return Whether this thread was interrupted and must stop
-     */
+    // Yield the CPU every so often, and report interruption.
     private static boolean exhausted(final int attempts) {
         boolean stop = false;
-        if (attempts % Patient.BACKOFF_FREQUENCY == 0) {
+        if (attempts % 64 == 0) {
             try {
-                Thread.sleep(Patient.BACKOFF_MILLIS);
+                Thread.sleep(1L);
             } catch (final InterruptedException interrupted) {
                 Thread.currentThread().interrupt();
                 stop = true;
@@ -78,11 +68,7 @@ final class Patient implements Pool {
         return stop;
     }
 
-    /**
-     * Build actionable pool-exhaustion diagnostics.
-     * @param attempts Candidate count
-     * @return Failure message
-     */
+    // Build actionable pool-exhaustion diagnostics.
     private String failure(final int attempts) {
         return String.format(
             String.join(
