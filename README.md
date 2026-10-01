@@ -2,19 +2,19 @@
 
 [![CI](https://github.com/newink/ephpo/actions/workflows/ci.yml/badge.svg?branch=master&event=push)](https://github.com/newink/ephpo/actions/workflows/ci.yml)
 [![Qulice](https://img.shields.io/github/check-runs/newink/ephpo/master?nameFilter=Quality%20%2F%20Qulice&label=Qulice)](https://github.com/newink/ephpo/actions/workflows/ci.yml)
-[![Test Coverage](https://codecov.io/gh/newink/ephpo/branch/master/graph/badge.svg)](https://codecov.io/gh/newink/ephpo)
+[![Test coverage](https://codecov.io/gh/newink/ephpo/branch/master/graph/badge.svg)](https://codecov.io/gh/newink/ephpo)
 [![Maven Central](https://img.shields.io/maven-central/v/codes.ivanov/ephpo.svg)](https://central.sonatype.com/artifact/codes.ivanov/ephpo)
 [![Java 11+](https://img.shields.io/badge/Java-11%2B-007396?logo=openjdk&logoColor=white)](#install)
 
-Cross-process TCP port reservations for JUnit 5 tests.
+Reserve TCP ports for JUnit 5 tests before starting a server or child process.
+File locks keep tests in cooperating JVMs from choosing the same port.
 
-Use ephpo when a test must know a port before a server or child process binds
-it. If the server can bind to port `0` and report the selected port, prefer
-that simpler approach.
+If your server can bind to port `0` and report its port, use that. ephpo is
+for tests that need the port number before the server starts.
 
 ## Install
 
-Add ephpo as a test dependency:
+Requires Java 11 or newer and JUnit 5. Add ephpo as a test dependency.
 
 Maven:
 
@@ -22,7 +22,7 @@ Maven:
 <dependency>
   <groupId>codes.ivanov</groupId>
   <artifactId>ephpo</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <scope>test</scope>
 </dependency>
 ```
@@ -30,12 +30,12 @@ Maven:
 Gradle:
 
 ```groovy
-testImplementation 'codes.ivanov:ephpo:1.0.0'
+testImplementation 'codes.ivanov:ephpo:1.0.1'
 ```
 
-Java 11 or newer and JUnit 5 are required.
+## Use with JUnit
 
-## Use
+Register `EphemeralResolver` and annotate the parameter that needs a port:
 
 ```java
 import codes.ivanov.ephpo.Ephemeral;
@@ -59,52 +59,72 @@ final class ServerTest {
 }
 ```
 
-`@Ephemeral` supports `int` and `Integer` parameters and instance fields.
-Field values are available in `@BeforeEach`; reservations are released after
-each test invocation.
+`@Ephemeral` accepts `int` and `Integer` parameters and instance fields.
+The extension sets fields before `@BeforeEach` and releases reservations
+after each test invocation.
 
-Parallel execution is a first-class use case. With
-`junit.jupiter.execution.parallel.enabled=true`, ephpo coordinates port
-reservations across JUnit worker threads and across multiple Maven or Gradle
-test JVMs running simultaneously on the same host, so cooperating forks never
-receive the same port. Parameter injection and `PER_METHOD` field injection
-support this mode. Concurrent `PER_CLASS` tests cannot use `@Ephemeral` fields;
-use parameter injection or `@Execution(SAME_THREAD)` instead.
-
-To register the extension automatically, add
+For automatic registration, add this to
 `src/test/resources/junit-platform.properties`:
 
 ```properties
 junit.jupiter.extensions.autodetection.enabled=true
 ```
 
-Then `@ExtendWith(EphemeralResolver.class)` is not needed.
+You can then omit `@ExtendWith`.
 
-The reservation API can also be used directly:
+## Parallel tests
+
+ephpo coordinates reservations across JUnit threads and Maven or Gradle test
+forks on the same host. The JVMs must use the same registry file.
+
+Set `junit.jupiter.execution.parallel.enabled=true` to enable JUnit's
+parallel execution support.
+
+When JUnit runs tests concurrently, parameter injection works with either
+`PER_METHOD` or `PER_CLASS`. Field injection requires `PER_METHOD`, because
+each test needs its own instance. For `PER_CLASS` tests with annotated fields,
+use `@Execution(SAME_THREAD)`.
+
+## Use without JUnit
+
+Acquire a reservation and keep it open while the server uses the port:
 
 ```java
-try (Reservation reservation = new Ports().acquire()) {
-    int port = reservation.port();
-    // Start the server or child process while the reservation is open.
+import codes.ivanov.ephpo.Ports;
+import codes.ivanov.ephpo.Reservation;
+import java.net.ServerSocket;
+
+// Inside a test method:
+try (
+    Reservation reservation = new Ports().acquire();
+    ServerSocket server = new ServerSocket(reservation.port())
+) {
+    // Exercise the server here.
 }
 ```
 
-A pool holds no state worth sharing, so construct `Ports` wherever you need
-it. `Pool.SINGLETON` still works but is deprecated and will be removed in
-2.0.0.
+Closing the reservation releases its file lock. You can create a `Ports`
+instance wherever you need one. `Pool.SINGLETON` is deprecated and scheduled
+for removal in 2.0.0.
 
-## Configure
+## Configure the test JVM
 
-The default range is `20000-29999` and the default acquisition timeout is
-`4000` milliseconds. Set `ephpo.range` and `ephpo.timeout` on the **test JVM**
-before ephpo is initialized. For a Maven command, Surefire forwards user
-properties to its test JVM by default:
+| Property | Default | Meaning |
+| --- | --- | --- |
+| `ephpo.range` | `20000-29999` | Inclusive range of TCP ports |
+| `ephpo.timeout` | `4000` | Acquisition timeout in milliseconds |
+
+Set these properties before JUnit creates the extension. Setting them in a
+test or lifecycle method can be too late, because the pool reads them when
+the extension is constructed.
+
+Surefire forwards Maven command-line properties to the test JVM by default:
 
 ```shell
 ./mvnw -Dephpo.range=30000-30999 -Dephpo.timeout=8000 test
 ```
 
-For persistent Maven configuration, use Surefire's system properties:
+To keep the configuration in your POM:
 
 ```xml
 <plugin>
@@ -119,7 +139,7 @@ For persistent Maven configuration, use Surefire's system properties:
 </plugin>
 ```
 
-For Gradle, configure the forked `Test` task explicitly:
+For Gradle, set the properties on the `Test` task:
 
 ```groovy
 tasks.named('test') {
@@ -128,33 +148,38 @@ tasks.named('test') {
 }
 ```
 
-Passing `-D` to `gradlew` only configures the Gradle JVM; it does not
-automatically configure the test worker. Do not rely on `System.setProperty`
-inside a test or lifecycle method: the pool reads both values when JUnit
-instantiates the extension, which may already have happened. Code using the
-pool directly can avoid global properties with
-`new Ports("30000-30999", 8000L)`.
+Passing `-D` to `gradlew` sets a property on the Gradle JVM. It does not
+forward that property to the test worker.
 
-The range must cover the peak number of ports reserved concurrently. The
-default provides 10,000 ports; expand the range if it is exhausted.
+With the reservation API, pass the range and timeout directly:
 
-Cross-process coordination uses byte-range locks in one zero-length registry,
-`${java.io.tmpdir}/ephpo/registry.lock`. The file is reused and may remain after
-the JVM exits.
+```java
+new Ports("30000-30999", 8000L)
+```
 
-ephpo prevents cooperating JVMs from receiving the same port and skips ports
-already in use. It cannot prevent an unrelated process from deliberately
-binding a reserved port.
+Choose a range large enough for the peak number of simultaneous reservations.
+The default range contains 10,000 ports. If acquisition fails with
+`NoFreePortException`, check whether the range is full or its ports are in
+use, then increase the range or timeout as needed.
+
+## How reservations work
+
+Each reservation holds a byte-range lock in
+`${java.io.tmpdir}/ephpo/registry.lock`. The file stays empty and can remain
+after the JVM exits. Cooperating JVMs must share this file to coordinate
+their reservations.
+
+ephpo checks that a candidate port can be bound before returning it. The
+reservation holds a file lock, so an unrelated process can still bind the
+port before your server does.
 
 ## Contribute
 
-Bug reports and pull requests are welcome. Read
-[CONTRIBUTING.md](CONTRIBUTING.md) first: the build is gated on Qulice, which
-is stricter than most Java projects, and it is cheaper to know that before you
-write code than after. Released changes are listed in
-[CHANGELOG.md](CHANGELOG.md).
+Read [CONTRIBUTING.md](CONTRIBUTING.md) for build commands and Qulice rules.
+CI blocks merges when those checks fail.
 
-Participation is governed by the [Code of Conduct](CODE_OF_CONDUCT.md).
-Vulnerabilities go to [SECURITY.md](SECURITY.md), never to a public issue.
+See [CHANGELOG.md](CHANGELOG.md) for released changes and the
+[Code of Conduct](CODE_OF_CONDUCT.md) for participation rules. Report
+vulnerabilities through [SECURITY.md](SECURITY.md).
 
 Licensed under the [MIT License](LICENSE.txt).
