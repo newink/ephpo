@@ -20,6 +20,7 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 
 /**
  * Injects {@link Ephemeral} parameters and fields for one test invocation.
+ *
  * @since 0.1.0
  */
 @API(status = API.Status.STABLE, since = "0.1.0")
@@ -45,6 +46,7 @@ public final class EphemeralResolver implements ParameterResolver,
 
     /**
      * New resolver backed by a supplied pool.
+     *
      * @param origin Port pool
      */
     EphemeralResolver(final Pool origin) {

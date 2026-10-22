@@ -25,6 +25,7 @@ final class Parked implements AutoCloseable,
 
     /**
      * New parked reservation.
+     *
      * @param reservation Reservation to release with the store
      */
     Parked(final Reservation reservation) {

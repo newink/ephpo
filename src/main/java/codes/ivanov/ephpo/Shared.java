@@ -11,6 +11,7 @@ import java.util.Map;
 
 /**
  * One open channel and the reservations still relying on it.
+ *
  * @since 1.0.1
  */
 final class Shared {
@@ -34,6 +35,7 @@ final class Shared {
 
     /**
      * New shared channel.
+     *
      * @param path Registry file
      * @param channel Channel
      * @param channels Shared registry map
@@ -48,6 +50,7 @@ final class Shared {
 
     /**
      * Channel on which port regions are locked.
+     *
      * @return Open channel
      */
     FileChannel channel() {

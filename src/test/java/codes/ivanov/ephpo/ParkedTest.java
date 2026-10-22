@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 
 /**
  * Tests for {@link Parked}.
+ *
  * @since 1.0.0
  */
 @SuppressWarnings("deprecation")

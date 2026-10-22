@@ -21,6 +21,7 @@ public interface Pool {
 
     /**
      * The recommended shared pool.
+     *
      * @deprecated A pool holds no state worth sharing; construct
      *  {@link Ports} where you need it. Scheduled for removal in 2.0.0.
      */
@@ -30,6 +31,7 @@ public interface Pool {
 
     /**
      * Reserve one port.
+     *
      * @return An open reservation
      * @throws NoFreePortException If no port becomes available in time
      */

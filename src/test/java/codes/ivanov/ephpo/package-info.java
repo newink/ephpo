@@ -4,6 +4,7 @@
  */
 /**
  * Build-skeleton tests for ephpo.
+ *
  * @since 0.1.0
  */
 package codes.ivanov.ephpo;

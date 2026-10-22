@@ -16,6 +16,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * Tests parameter and field injection.
+ *
  * @since 0.1.0
  */
 @ExtendWith(EphemeralResolver.class)
