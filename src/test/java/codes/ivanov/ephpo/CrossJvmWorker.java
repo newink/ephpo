@@ -17,9 +17,11 @@ import java.util.List;
 
 /**
  * Child-process entry point for cross-JVM integration tests.
+ *
  * @since 0.1.0
  */
 @SuppressWarnings({
+    "PMD.CloseInlineResourceRule",
     "PMD.CloseResource",
     "PMD.LongVariable",
     "PMD.UnnecessaryLocalRule",
@@ -45,6 +47,7 @@ public final class CrossJvmWorker {
 
     /**
      * Run one worker mode.
+     *
      * @param args Mode and its arguments
      * @throws Exception When the worker cannot complete
      */

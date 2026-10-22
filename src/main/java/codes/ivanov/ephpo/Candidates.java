@@ -9,6 +9,7 @@ import java.util.Optional;
 
 /**
  * Random ports from a range, claimed in a host-wide registry.
+ *
  * @since 0.1.1
  */
 final class Candidates implements Attempt {
@@ -26,6 +27,7 @@ final class Candidates implements Attempt {
 
     /**
      * New source of candidates.
+     *
      * @param span Range to draw from
      * @param origin Registry to claim in
      */

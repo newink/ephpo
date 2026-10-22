@@ -8,6 +8,7 @@ import java.util.Optional;
 
 /**
  * A pool that keeps retrying an attempt until its deadline.
+ *
  * @since 0.1.1
  */
 final class Patient implements Pool {
@@ -23,6 +24,7 @@ final class Patient implements Pool {
 
     /**
      * New patient pool.
+     *
      * @param attempt Wrapped attempt
      * @param span Range the attempt draws from
      * @param millis Acquisition timeout in milliseconds

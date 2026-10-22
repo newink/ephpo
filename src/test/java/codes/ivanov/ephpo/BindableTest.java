@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Tests for {@link Bindable}.
+ *
  * @since 0.1.1
  */
 @SuppressWarnings("PMD.UnitTestContainsTooManyAsserts")

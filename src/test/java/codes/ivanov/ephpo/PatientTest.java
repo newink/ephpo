@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Tests for {@link Patient}.
+ *
  * @since 0.1.1
  */
 @SuppressWarnings("PMD.UnitTestContainsTooManyAsserts")

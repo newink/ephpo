@@ -13,6 +13,7 @@ import java.util.Optional;
 
 /**
  * Attempts kept only when nothing is already listening on the port.
+ *
  * @since 0.1.1
  */
 @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
@@ -36,6 +37,7 @@ final class Bindable implements Attempt {
 
     /**
      * New probing attempt.
+     *
      * @param attempt Wrapped attempt
      */
     Bindable(final Attempt attempt) {
@@ -44,6 +46,7 @@ final class Bindable implements Attempt {
 
     /**
      * New probing attempt over the given interfaces.
+     *
      * @param attempt Wrapped attempt
      * @param probes Interfaces to probe
      */

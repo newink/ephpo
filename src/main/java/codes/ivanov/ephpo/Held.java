@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * One port and the host-wide lock that holds it.
+ *
  * @since 0.1.1
  */
 final class Held implements Reservation {
@@ -33,6 +34,7 @@ final class Held implements Reservation {
 
     /**
      * New held port.
+     *
      * @param port Port number
      * @param guard Host-wide lock
      * @param callback What to run once the lock is gone

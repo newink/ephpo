@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A reservation that holds nothing and remembers being closed.
+ *
  * @since 0.1.1
  */
 final class FakeReservation implements Reservation {
@@ -20,6 +21,7 @@ final class FakeReservation implements Reservation {
 
     /**
      * New fake reservation.
+     *
      * @param port Port number
      */
     FakeReservation(final int port) {
@@ -39,6 +41,7 @@ final class FakeReservation implements Reservation {
 
     /**
      * Tell whether this reservation was closed.
+     *
      * @return Whether it was closed
      */
     boolean closed() {

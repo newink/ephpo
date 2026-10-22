@@ -9,6 +9,7 @@ import org.apiguardian.api.API;
 
 /**
  * Random non-ephemeral ports guarded by host-wide byte-range locks.
+ *
  * @since 0.1.0
  */
 @API(status = API.Status.STABLE, since = "0.1.0")
@@ -29,6 +30,7 @@ public final class Ports implements Pool {
 
     /**
      * New pool with an explicit range and timeout.
+     *
      * @param range Inclusive {@code MIN-MAX}
      * @param millis Acquisition timeout in milliseconds
      */
@@ -38,6 +40,7 @@ public final class Ports implements Pool {
 
     /**
      * New pool over a parsed range.
+     *
      * @param range Port range
      * @param millis Acquisition timeout in milliseconds
      */
@@ -63,6 +66,7 @@ public final class Ports implements Pool {
 
     /**
      * New pool delegating to a composition.
+     *
      * @param composed Composed pool
      */
     private Ports(final Pool composed) {

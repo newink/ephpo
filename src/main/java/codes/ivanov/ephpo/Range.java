@@ -8,6 +8,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * An inclusive range of TCP port numbers.
+ *
  * @since 0.1.1
  */
 @SuppressWarnings("PMD.ConstructorOnlyInitializesOrCallOtherConstructors")
@@ -21,6 +22,7 @@ final class Range {
 
     /**
      * New range from its textual form.
+     *
      * @param text Inclusive {@code MIN-MAX}
      */
     // @checkstyle ConstructorsCodeFreeCheck (18 lines)
@@ -48,6 +50,7 @@ final class Range {
 
     /**
      * Pick one port at random.
+     *
      * @return Port number
      */
     int random() {

@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Timeout;
 
 /**
  * Verifies the reservation guarantee with real, competing JVMs.
+ *
  * @since 0.1.0
  */
 @SuppressWarnings({

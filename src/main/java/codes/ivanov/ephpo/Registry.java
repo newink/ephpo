@@ -47,6 +47,7 @@ final class Registry {
 
     /**
      * New registry.
+     *
      * @param folder Registry directory
      */
     Registry(final Path folder) {
@@ -55,6 +56,7 @@ final class Registry {
 
     /**
      * Lock one port's region.
+     *
      * @param port Candidate port
      * @return Held reservation, when the region was free
      * @throws IOException When the registry cannot be opened

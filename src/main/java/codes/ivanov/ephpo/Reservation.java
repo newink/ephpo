@@ -18,6 +18,7 @@ public interface Reservation extends AutoCloseable {
 
     /**
      * Obtain the reserved port.
+     *
      * @return Port number
      */
     int port();

@@ -26,6 +26,7 @@ import org.junit.platform.launcher.listeners.TestExecutionSummary;
 
 /**
  * Tests diagnostics by launching deliberately invalid test classes.
+ *
  * @since 0.1.0
  */
 @SuppressWarnings({

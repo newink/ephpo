@@ -14,6 +14,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 /**
  * Tests for {@link Registry}.
+ *
  * @since 0.1.1
  */
 final class RegistryTest {
