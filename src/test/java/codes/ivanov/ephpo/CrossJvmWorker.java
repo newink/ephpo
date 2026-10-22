@@ -21,7 +21,6 @@ import java.util.List;
  * @since 0.1.0
  */
 @SuppressWarnings({
-    "PMD.CloseInlineResourceRule",
     "PMD.CloseResource",
     "PMD.LongVariable",
     "PMD.UnnecessaryLocalRule",
@@ -86,6 +85,7 @@ public final class CrossJvmWorker {
     }
 
     // Create pressure on the operating system's ephemeral allocator.
+    @SuppressWarnings("PMD.CloseInlineResourceRule")
     private static void churn(final long millis, final Path heartbeat)
         throws IOException {
         final long deadline = System.currentTimeMillis() + millis;
@@ -171,6 +171,7 @@ public final class CrossJvmWorker {
     }
 
     // Bind a targeted port despite transient allocator-churn ownership.
+    @SuppressWarnings("PMD.CloseInlineResourceRule")
     private static ServerSocket bind(final int port) throws Exception {
         final long deadline = System.currentTimeMillis()
             + CrossJvmWorker.COORDINATION_TIMEOUT / 2L;

@@ -41,6 +41,7 @@ The rules that catch newcomers most often:
 - Classes, constructors, and fields need Javadoc, as do methods that are
   neither private nor overrides. Use ordinary comments for private methods.
   Every class and interface needs an `@since` tag with its first version.
+  Leave an empty ` *` line between the description and the first tag.
 - Inline private constants used only once. Put static nested classes in
   their own files.
 - Parameters and local variables must be `final`.
