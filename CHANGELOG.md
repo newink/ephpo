@@ -10,6 +10,16 @@ that removes or narrows it waits for the next major, as stated in
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-10-31
+
+### Changed
+
+- Updated Maven to 3.10.0, Surefire and Failsafe to 3.6.1, Qulice to 0.36.0,
+  and the Central publishing plugin to 0.12.0. Javadoc blocks now leave an
+  empty line before the first tag, as Qulice 0.36.0 requires. The public API
+  and port reservation behavior are unchanged.
+- Updated GitHub Actions, including CodeQL.
+
 ## [1.0.1] - 2026-10-02
 
 ### Changed
@@ -101,7 +111,8 @@ that removes or narrows it waits for the next major, as stated in
   `20000-29999` and `4000` milliseconds.
 - `NoFreePortException` with actionable diagnostics when a range is exhausted.
 
-[Unreleased]: https://github.com/newink/ephpo/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/newink/ephpo/compare/v1.0.2...HEAD
+[1.0.2]: https://github.com/newink/ephpo/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/newink/ephpo/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/newink/ephpo/compare/v0.1.1...v1.0.0
 [0.1.1]: https://github.com/newink/ephpo/compare/v0.1.0...v0.1.1
