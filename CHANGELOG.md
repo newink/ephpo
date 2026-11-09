@@ -10,6 +10,13 @@ that removes or narrows it waits for the next major, as stated in
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-11-09
+
+### Changed
+
+- Updated JaCoCo to 0.8.16. The public API and port reservation behavior
+  are unchanged.
+
 ## [1.0.2] - 2026-10-31
 
 ### Changed
@@ -111,7 +118,8 @@ that removes or narrows it waits for the next major, as stated in
   `20000-29999` and `4000` milliseconds.
 - `NoFreePortException` with actionable diagnostics when a range is exhausted.
 
-[Unreleased]: https://github.com/newink/ephpo/compare/v1.0.2...HEAD
+[Unreleased]: https://github.com/newink/ephpo/compare/v1.0.3...HEAD
+[1.0.3]: https://github.com/newink/ephpo/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/newink/ephpo/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/newink/ephpo/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/newink/ephpo/compare/v0.1.1...v1.0.0
